@@ -1,7 +1,8 @@
 <?php
 
 /*
- * This is a worker process that will run forever and execute tasks as they appear in the queue.
+ * This is a slight variation of the worker.php class that will only work while there are jobs
+ * in the queue. As soon as the queue is emptied, this process will gracefully stop.
  */
 
 require_once __DIR__ . '/vendor/autoload.php';

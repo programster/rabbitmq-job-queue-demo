@@ -1,5 +1,10 @@
 <?php
 
+/*
+ * This is a process that continuously publishes work to the queue. You could call it a
+ * "job creator" =)
+ */
+
 require_once(__DIR__ . '/vendor/autoload.php');
 
 define("RABBITMQ_HOST", "rabbitmq.programster.org");
@@ -47,5 +52,4 @@ while (true)
     print 'Job created' . PHP_EOL;
     sleep(1);
 }
-
 
