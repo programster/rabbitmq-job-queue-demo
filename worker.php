@@ -1,7 +1,8 @@
 <?php
 
 /*
- * This is a worker process that will run forever and execute tasks as they appear in the queue.
+ * This is a worker process that will run forever (blocking) 
+  * and execute tasks as they appear in the queue.
  */
 
 require_once __DIR__ . '/vendor/autoload.php';
@@ -14,9 +15,9 @@ define("RABBITMQ_PASSWORD", "guest");
 define("RABBITMQ_QUEUE_NAME", "task_queue");
 
 $connection = new \PhpAmqpLib\Connection\AMQPStreamConnection(
-    RABBITMQ_HOST, 
-    RABBITMQ_PORT, 
-    RABBITMQ_USERNAME, 
+    RABBITMQ_HOST,
+    RABBITMQ_PORT,
+    RABBITMQ_USERNAME,
     RABBITMQ_PASSWORD
 );
 
@@ -58,23 +59,10 @@ $channel->basic_consume(
     $callback
 );
 
-// This is the best I could find for a non-blocking wait. Unfortunately one has to have
-// a timeout (for now), and simply setting nonBlocking=true on its own appears do to nothing.
-// An exception is thrown when the timout is reached, breaking the loop, and you should catch it
-// to exit gracefully.
-try
+while (count($channel->callbacks))
 {
-    while (count($channel->callbacks)) 
-    {
-        print "running non blocking wait." . PHP_EOL;
-        $channel->wait($allowed_methods=null, $nonBlocking=true, $timeout=1);
-    }
+    $channel->wait();
 }
-catch (Exception $e)
-{
-    print "There are no more tasks in the queue." . PHP_EOL;
-}
-
 
 $channel->close();
 $connection->close();
